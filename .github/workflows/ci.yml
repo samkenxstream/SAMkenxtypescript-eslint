@@ -201,13 +201,10 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Wait for Netlify deployment
-        uses: probablyup/wait-for-netlify-action@v3.4.0
+        uses: ./.github/actions/wait-for-netlify
         id: waitForDeployment
         with:
-          site_id: '128d21c7-b2fe-45ad-b141-9878fcf5de3a'
-          max_timeout: 300 # 5 minutes
-        env:
-          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          netlify_token: ${{ secrets.NETLIFY_TOKEN }}
 
       - name: Run Playwright tests against the Netlify deployment
         run: yarn playwright test --reporter=list
@@ -245,6 +242,8 @@ jobs:
   publish_canary_version:
     name: Publish the latest code as a canary version
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     needs: [integration_tests, lint_with_build, lint_without_build, unit_tests]
     if: github.repository == 'typescript-eslint/typescript-eslint' && github.ref == 'refs/heads/main'
     steps:
@@ -270,6 +269,8 @@ jobs:
   publish_canary_version_v6:
     name: Publish the next major version code as a canary version
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     needs: [integration_tests, lint_with_build, lint_without_build, unit_tests]
     if: github.ref == 'refs/heads/v6'
     steps:
